@@ -1,0 +1,286 @@
+{
+  "collections": {
+    "users": {
+      "description": "Benutzer der Anwendung (Hochzeitspaar, Trauzeugen)",
+      "fields": {
+        "email": "string",
+        "role": "string",
+        "displayName": "string",
+        "createdAt": "timestamp",
+        "lastLogin": "timestamp",
+        "language": "string",
+        "selectedTheme": "string"
+      }
+    },
+    "weddings": {
+      "description": "Hochzeitsdetails",
+      "fields": {
+        "userId": "reference:users",
+        "weddingDate": "timestamp",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp",
+        "theme": "string",
+        "language": "string",
+        "menuOptions": "array",
+        "menuColors": "map",
+        "banner": "string",
+        "totalBudget": "number"
+      },
+      "subcollections": {
+        "sections": {
+          "description": "Sektionen der Homepage",
+          "fields": {
+            "name": "string",
+            "order": "number",
+            "visible": "boolean",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          },
+          "subcollections": {
+            "contents": {
+              "description": "Inhalte innerhalb einer Sektion",
+              "fields": {
+                "type": "string",
+                "title": "string",
+                "text": "string",
+                "imageUrl": "string",
+                "time": "timestamp",
+                "location": "string",
+                "day": "string",
+                "order": "number",
+                "visible": "boolean",
+                "createdAt": "timestamp",
+                "updatedAt": "timestamp"
+              }
+            }
+          }
+        },
+        "guests": {
+          "description": "Gästeliste",
+          "fields": {
+            "firstName": "string",
+            "lastName": "string",
+            "email": "string",
+            "address": "string",
+            "allowPlusOne": "boolean",
+            "authCode": "string",
+            "rsvpStatus": "string",
+            "menuChoice": "string",
+            "plusOneName": "string",
+            "plusOneMenuChoice": "string",
+            "notes": "string",
+            "groupId": "string",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          }
+        },
+        "guestGroups": {
+          "description": "Gästegruppen",
+          "fields": {
+            "name": "string",
+            "description": "string",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          }
+        },
+        "budgetCategories": {
+          "description": "Budgetkategorien",
+          "fields": {
+            "name": "string",
+            "description": "string",
+            "isCustom": "boolean",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          }
+        },
+        "budgetItems": {
+          "description": "Budgeteinträge",
+          "fields": {
+            "description": "string",
+            "categoryId": "string",
+            "estimatedCost": "number",
+            "actualCost": "number",
+            "paidAmount": "number",
+            "dueDate": "timestamp",
+            "status": "string",
+            "vendorId": "string",
+            "notes": "string",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          }
+        },
+        "timelineTasks": {
+          "description": "Timeline-Aufgaben",
+          "fields": {
+            "description": "string",
+            "dueDate": "timestamp",
+            "status": "string",
+            "category": "string",
+            "notes": "string",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          }
+        },
+        "vendors": {
+          "description": "Dienstleister",
+          "fields": {
+            "name": "string",
+            "category": "string",
+            "contactName": "string",
+            "phone": "string",
+            "email": "string",
+            "website": "string",
+            "address": "string",
+            "contractUrl": "string",
+            "notes": "string",
+            "internalRating": "number",
+            "internalFeedback": "string",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          },
+          "subcollections": {
+            "payments": {
+              "description": "Zahlungen an Dienstleister",
+              "fields": {
+                "amount": "number",
+                "date": "timestamp",
+                "method": "string",
+                "notes": "string",
+                "receiptUrl": "string",
+                "createdAt": "timestamp",
+                "updatedAt": "timestamp"
+              }
+            },
+            "communications": {
+              "description": "Kommunikationsprotokoll",
+              "fields": {
+                "date": "timestamp",
+                "content": "string",
+                "createdAt": "timestamp",
+                "updatedAt": "timestamp"
+              }
+            }
+          }
+        },
+        "tables": {
+          "description": "Tische für Tischplan",
+          "fields": {
+            "name": "string",
+            "shape": "string",
+            "seats": "number",
+            "positionX": "number",
+            "positionY": "number",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          }
+        },
+        "seatAssignments": {
+          "description": "Sitzplatzzuweisungen",
+          "fields": {
+            "tableId": "string",
+            "seatNumber": "number",
+            "guestId": "string",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          }
+        },
+        "announcements": {
+          "description": "Ankündigungen an Gäste",
+          "fields": {
+            "title": "string",
+            "content": "string",
+            "targetGroups": "array",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          }
+        },
+        "polls": {
+          "description": "Umfragen für Gäste",
+          "fields": {
+            "title": "string",
+            "description": "string",
+            "type": "string",
+            "options": "array",
+            "active": "boolean",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          },
+          "subcollections": {
+            "responses": {
+              "description": "Antworten auf Umfragen",
+              "fields": {
+                "guestId": "string",
+                "answer": "any",
+                "createdAt": "timestamp",
+                "updatedAt": "timestamp"
+              }
+            }
+          }
+        },
+        "guestPhotos": {
+          "description": "Von Gästen hochgeladene Fotos",
+          "fields": {
+            "guestId": "string",
+            "imageUrl": "string",
+            "approved": "boolean",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          }
+        },
+        "thankyouTracking": {
+          "description": "Danksagungsverfolgung",
+          "fields": {
+            "guestId": "string",
+            "giftReceived": "boolean",
+            "giftDescription": "string",
+            "thankYouSent": "boolean",
+            "sentDate": "timestamp",
+            "notes": "string",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          }
+        }
+      }
+    },
+    "jgaPlanning": {
+      "description": "JGA-Planung für Trauzeugen",
+      "fields": {
+        "weddingId": "reference:weddings",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "subcollections": {
+        "discussions": {
+          "description": "Diskussionen zur JGA-Planung",
+          "fields": {
+            "userId": "reference:users",
+            "content": "string",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          }
+        },
+        "expenses": {
+          "description": "JGA-Ausgaben",
+          "fields": {
+            "description": "string",
+            "amount": "number",
+            "paidBy": "reference:users",
+            "receiptUrl": "string",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          }
+        },
+        "photos": {
+          "description": "JGA-Fotos",
+          "fields": {
+            "userId": "reference:users",
+            "imageUrl": "string",
+            "description": "string",
+            "createdAt": "timestamp",
+            "updatedAt": "timestamp"
+          }
+        }
+      }
+    }
+  }
+}

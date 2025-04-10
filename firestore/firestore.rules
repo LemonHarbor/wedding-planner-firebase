@@ -1,0 +1,144 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Standardregel: Authentifizierung erforderlich für alle Operationen
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Benutzer können nur ihre eigenen Daten lesen und schreiben
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Hochzeiten - Hochzeitspaar kann alles, Gäste und Trauzeugen haben eingeschränkten Zugriff
+    match /weddings/{weddingId} {
+      allow read: if request.auth != null && (isWeddingAdmin() || isWeddingGuest() || isWeddingWitness());
+      allow write: if request.auth != null && isWeddingAdmin();
+      
+      // Sektionen - Hochzeitspaar kann alles, Gäste können nur lesen
+      match /sections/{sectionId} {
+        allow read: if request.auth != null && (isWeddingAdmin() || isWeddingGuest());
+        allow write: if request.auth != null && isWeddingAdmin();
+        
+        // Inhalte - Hochzeitspaar kann alles, Gäste können nur lesen
+        match /contents/{contentId} {
+          allow read: if request.auth != null && (isWeddingAdmin() || isWeddingGuest());
+          allow write: if request.auth != null && isWeddingAdmin();
+        }
+      }
+      
+      // Gäste - Hochzeitspaar kann alles, Gäste können nur sich selbst sehen
+      match /guests/{guestId} {
+        allow read: if request.auth != null && (isWeddingAdmin() || (isWeddingGuest() && guestId == request.auth.uid));
+        allow create, update, delete: if request.auth != null && isWeddingAdmin();
+      }
+      
+      // Gästegruppen - nur Hochzeitspaar
+      match /guestGroups/{groupId} {
+        allow read, write: if request.auth != null && isWeddingAdmin();
+      }
+      
+      // Budget - nur Hochzeitspaar
+      match /budgetCategories/{categoryId} {
+        allow read, write: if request.auth != null && isWeddingAdmin();
+      }
+      
+      match /budgetItems/{itemId} {
+        allow read, write: if request.auth != null && isWeddingAdmin();
+      }
+      
+      // Timeline - nur Hochzeitspaar
+      match /timelineTasks/{taskId} {
+        allow read, write: if request.auth != null && isWeddingAdmin();
+      }
+      
+      // Dienstleister - nur Hochzeitspaar
+      match /vendors/{vendorId} {
+        allow read, write: if request.auth != null && isWeddingAdmin();
+        
+        match /payments/{paymentId} {
+          allow read, write: if request.auth != null && isWeddingAdmin();
+        }
+        
+        match /communications/{communicationId} {
+          allow read, write: if request.auth != null && isWeddingAdmin();
+        }
+      }
+      
+      // Tischplan - Hochzeitspaar kann alles, Gäste können nur lesen
+      match /tables/{tableId} {
+        allow read: if request.auth != null && (isWeddingAdmin() || isWeddingGuest());
+        allow write: if request.auth != null && isWeddingAdmin();
+      }
+      
+      match /seatAssignments/{assignmentId} {
+        allow read: if request.auth != null && (isWeddingAdmin() || isWeddingGuest());
+        allow write: if request.auth != null && isWeddingAdmin();
+      }
+      
+      // Ankündigungen - Hochzeitspaar kann alles, Gäste können nur lesen
+      match /announcements/{announcementId} {
+        allow read: if request.auth != null && (isWeddingAdmin() || isWeddingGuest());
+        allow write: if request.auth != null && isWeddingAdmin();
+      }
+      
+      // Umfragen - Hochzeitspaar kann alles, Gäste können lesen und antworten
+      match /polls/{pollId} {
+        allow read: if request.auth != null && (isWeddingAdmin() || isWeddingGuest());
+        allow write: if request.auth != null && isWeddingAdmin();
+        
+        match /responses/{responseId} {
+          allow read: if request.auth != null && isWeddingAdmin();
+          allow create: if request.auth != null && isWeddingGuest();
+          allow update, delete: if request.auth != null && 
+                                 isWeddingGuest() && 
+                                 get(/databases/$(database)/documents/weddings/$(weddingId)/polls/$(pollId)/responses/$(responseId)).data.guestId == request.auth.uid;
+        }
+      }
+      
+      // Gästefotos - Hochzeitspaar kann alles, Gäste können hochladen und sehen
+      match /guestPhotos/{photoId} {
+        allow read: if request.auth != null && (isWeddingAdmin() || isWeddingGuest());
+        allow create: if request.auth != null && isWeddingGuest();
+        allow update, delete: if request.auth != null && isWeddingAdmin();
+      }
+      
+      // Danksagungsverfolgung - nur Hochzeitspaar
+      match /thankyouTracking/{trackingId} {
+        allow read, write: if request.auth != null && isWeddingAdmin();
+      }
+    }
+    
+    // JGA-Planung - Hochzeitspaar und Trauzeugen
+    match /jgaPlanning/{planningId} {
+      allow read, write: if request.auth != null && (isWeddingAdmin() || isWeddingWitness());
+      
+      match /discussions/{discussionId} {
+        allow read, write: if request.auth != null && (isWeddingAdmin() || isWeddingWitness());
+      }
+      
+      match /expenses/{expenseId} {
+        allow read, write: if request.auth != null && (isWeddingAdmin() || isWeddingWitness());
+      }
+      
+      match /photos/{photoId} {
+        allow read, write: if request.auth != null && (isWeddingAdmin() || isWeddingWitness());
+      }
+    }
+    
+    // Hilfsfunktionen
+    function isWeddingAdmin() {
+      return request.auth.token.role == 'admin';
+    }
+    
+    function isWeddingGuest() {
+      return request.auth.token.role == 'guest';
+    }
+    
+    function isWeddingWitness() {
+      return request.auth.token.role == 'witness';
+    }
+  }
+}

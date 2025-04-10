@@ -1,0 +1,40 @@
+{
+  "users": [
+    {
+      "localId": "wedding-admin",
+      "email": "hochzeitspaar@example.com",
+      "emailVerified": true,
+      "displayName": "Hochzeitspaar Admin",
+      "passwordHash": "UkVEQUNURUQ=",
+      "salt": "REDACTED",
+      "createdAt": "2025-04-10T13:00:00.000Z",
+      "lastSignedInAt": "2025-04-10T13:00:00.000Z",
+      "providerUserInfo": [
+        {
+          "providerId": "password",
+          "email": "hochzeitspaar@example.com",
+          "displayName": "Hochzeitspaar Admin"
+        }
+      ],
+      "customAttributes": "{\"role\":\"admin\"}"
+    },
+    {
+      "localId": "trauzeuge-1",
+      "email": "trauzeuge1@example.com",
+      "emailVerified": true,
+      "displayName": "Trauzeuge 1",
+      "passwordHash": "UkVEQUNURUQ=",
+      "salt": "REDACTED",
+      "createdAt": "2025-04-10T13:00:00.000Z",
+      "lastSignedInAt": "2025-04-10T13:00:00.000Z",
+      "providerUserInfo": [
+        {
+          "providerId": "password",
+          "email": "trauzeuge1@example.com",
+          "displayName": "Trauzeuge 1"
+        }
+      ],
+      "customAttributes": "{\"role\":\"witness\"}"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Standardregel: Authentifizierung erforderlich für alle Operationen
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Hochzeitsfotos - Hochzeitspaar kann alles, Gäste können nur lesen
+    match /weddings/{weddingId}/photos/{photoId} {
+      allow read: if isAuthenticated() && (isWeddingAdmin(weddingId) || isWeddingGuest(weddingId));
+      allow write: if isAuthenticated() && isWeddingAdmin(weddingId);
+    }
+    
+    // Gästefotos - Hochzeitspaar kann alles, Gäste können hochladen und eigene Fotos sehen
+    match /weddings/{weddingId}/guestPhotos/{photoId} {
+      allow read: if isAuthenticated() && (isWeddingAdmin(weddingId) || isWeddingGuest(weddingId));
+      allow create: if isAuthenticated() && isWeddingGuest(weddingId);
+      allow update, delete: if isAuthenticated() && isWeddingAdmin(weddingId);
+    }
+    
+    // Verträge und Belege - nur für Hochzeitspaar
+    match /weddings/{weddingId}/contracts/{documentId} {
+      allow read, write: if isAuthenticated() && isWeddingAdmin(weddingId);
+    }
+    
+    // JGA-Fotos - nur für Trauzeugen und Hochzeitspaar
+    match /weddings/{weddingId}/jga/photos/{photoId} {
+      allow read, write: if isAuthenticated() && (isWeddingAdmin(weddingId) || isWeddingWitness(weddingId));
+    }
+    
+    // JGA-Belege - nur für Trauzeugen und Hochzeitspaar
+    match /weddings/{weddingId}/jga/receipts/{receiptId} {
+      allow read, write: if isAuthenticated() && (isWeddingAdmin(weddingId) || isWeddingWitness(weddingId));
+    }
+    
+    // Profilbilder - jeder Benutzer kann sein eigenes Profilbild verwalten
+    match /users/{userId}/profile/{imageId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Hilfsfunktionen
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isWeddingAdmin(weddingId) {
+      return request.auth.token.role == 'admin' && 
+             exists(/databases/$(database)/documents/weddings/$(weddingId)) && 
+             get(/databases/$(database)/documents/weddings/$(weddingId)).data.userId == request.auth.uid;
+    }
+    
+    function isWeddingGuest(weddingId) {
+      return exists(/databases/$(database)/documents/weddings/$(weddingId)/guests/$(request.auth.uid));
+    }
+    
+    function isWeddingWitness(weddingId) {
+      return request.auth.token.role == 'witness' && 
+             exists(/databases/$(database)/documents/weddings/$(weddingId));
+    }
+  }
+}
